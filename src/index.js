@@ -13,8 +13,8 @@ import "./index.scss";
 // setInterval(() => {
 //   window.location.reload();
 // }, 1000 * 30);
-// window.apiURL = "https://api.accesssurveykshan.co.in/api/v1";
-window.apiURL = "http://localhost:8080/api/v1";
+window.apiURL = "https://api.accesssurveykshan.co.in/api/v1";
+// window.apiURL = "http://localhost:8080/api/v1";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <AppProvider>
