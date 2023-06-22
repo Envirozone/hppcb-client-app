@@ -115,6 +115,7 @@ const Filter = ({
         <div className="row g-2">
           <div className="col-sm-4">
             <select
+              ref={selectedState}
               className="form-select"
               disabled
               defaultValue={"Himachal Pradesh"}
