@@ -43,8 +43,6 @@ function App() {
           <Route element={<Dashboard />}>
             <Route index element={<Graph />} />
             <Route path="map" element={<Map />} />
-            <Route path="/hppcb/home-dashboard" element={<Graph />} />
-            <Route path="/hppcb/home-dashboard/map" element={<Map />} />
           </Route>
           <Route element={<IndustryDashBoard />}>
             <Route path="/:industry_name" element={<IndustryGraph />} />
