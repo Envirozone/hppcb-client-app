@@ -9,46 +9,57 @@ import { faDownload, faRotate } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import { useGlobalContext } from "./../../context";
 import { getDateFromMilisec } from "../customHooks/useGetDateFromMilisec";
+import NoData from "../NoData";
 
 const AlertTable = ({ alertType, page, setTotalPage }) => {
   const [apiData, setApiData] = useState([]);
-  const [tableMessage, setTableMessage] = useState("");
+  const [tableMessage, setTableMessage] = useState("first");
+  const [tableErrorMessage, setTableErrorMessage] = useState("");
   const [searchStr, setSearchStr] = useState("");
 
   useEffect(() => {
-    setTableMessage("Loading...");
-    (async () => {
-      try {
-        const result = await axios(
-          `${
-            window.apiURL
-          }/alerts?state=${"Himachal Pradesh"}&alert_type=${alertType}&numberOfAlerts=20&searchStr=${searchStr}&pageNumber=${page}`
-        );
-        const data = result.data.alerts;
-        setTotalPage(Math.ceil(result.data.count / 20));
+    if (
+      (searchStr.length > 3 || searchStr.length === 0) &&
+      (tableMessage !== "first" || searchStr.length !== 0)
+    ) {
+      setTableErrorMessage("");
+      setTableMessage("Loading...");
+      (async () => {
+        try {
+          const result = await axios(
+            `${
+              window.apiURL
+            }/alerts?state=${"Himachal Pradesh"}&alert_type=${alertType}&numberOfAlerts=20&searchStr=${searchStr}&pageNumber=${page}`
+          );
+          const data = result.data.alerts;
+          setTotalPage(Math.ceil(result.data.count / 20));
 
-        data.forEach((item) => {
-          if (!item._id) item._id = "---";
-          if (!item.alert_type) item.alert_type = "---";
-          if (!item.body) item.body = "---";
-          if (!item.createdAt) {
-            item.createdAt = "---";
+          data.forEach((item) => {
+            if (!item._id) item._id = "---";
+            if (!item.alert_type) item.alert_type = "---";
+            if (!item.body) item.body = "---";
+            if (!item.createdAt) {
+              item.createdAt = "---";
+            } else {
+              item.createdAt = getDateFromMilisec(item.createdAt);
+            }
+            if (!item.device_name) item.device_name = "---";
+            if (!item.industry_name) item.industry_name = "---";
+            if (!item.parameter_name) item.parameter_name = "---";
+            if (!item.station_name) item.station_name = "---";
+          });
+          if (data.length > 0) {
+            setTableMessage("");
+            setApiData(data);
           } else {
-            item.createdAt = getDateFromMilisec(item.createdAt);
+            setTableMessage("No Data");
           }
-          if (!item.device_name) item.device_name = "---";
-          if (!item.industry_name) item.industry_name = "---";
-          if (!item.parameter_name) item.parameter_name = "---";
-          if (!item.station_name) item.station_name = "---";
-        });
-        if (data) {
+        } catch (error) {
           setTableMessage("");
-          setApiData(data);
+          setTableMessage(`Something went wrong: ${error.message}`);
         }
-      } catch (error) {
-        setTableMessage(`Something went wrong: ${error.message}`);
-      }
-    })();
+      })();
+    }
   }, [searchStr, page]);
 
   const columns = useMemo(() => COLUMNS, []);
@@ -170,12 +181,16 @@ const AlertTable = ({ alertType, page, setTotalPage }) => {
       <div className="col-12">
         <div>
           <div className="table__container">
-            {tableMessage ? (
-              tableMessage === "Loading..." ? (
-                <h5 className="text-center py-4">{tableMessage}</h5>
-              ) : (
-                <h6 className="text-center py-4 text-danger">{tableMessage}</h6>
-              )
+            {tableMessage === "first" ? (
+              <NoData dataMessage={"Search by Modem Id to get Data"} />
+            ) : tableMessage === "No Data" ? (
+              <NoData dataMessage={tableMessage} />
+            ) : tableMessage ? (
+              <h5 className="text-center py-5">{tableMessage}</h5>
+            ) : tableErrorMessage ? (
+              <h6 className="text-center py-4 text-danger">
+                {tableErrorMessage}
+              </h6>
             ) : (
               <>
                 <table {...getTableProps()}>
